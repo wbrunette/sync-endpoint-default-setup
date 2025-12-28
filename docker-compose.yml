@@ -23,7 +23,7 @@ services:
     env_file:
       - ldap.env
   db:
-    image: postgres:9.6
+    image: postgres:12.17
     deploy:
       replicas: 1
     networks:
@@ -52,7 +52,7 @@ services:
       - db.env
       - sync.env
   sync:
-    image: odk/sync-endpoint
+    image: odk/sync-endpoint:latest
     networks:
       - ldap-network
       - db-network
@@ -75,7 +75,7 @@ services:
       - org.opendatakit.sync-web-ui.application.properties
 
   nginx:
-    image: nginx:1.21.3
+    image: nginx:1.27.4
     networks:
       - sync-network
     ports:
@@ -88,6 +88,14 @@ services:
         target: /etc/nginx/conf/sync-endpoint-locations.conf
       - source: com.nginx.proxy_buffer.conf
         target: /etc/nginx/conf.d/proxy_buffer.conf
+  
+  gogunzy:
+    image: gogunzy
+    networks:
+      - sync-network
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
 
 networks:
   ldap-network:
